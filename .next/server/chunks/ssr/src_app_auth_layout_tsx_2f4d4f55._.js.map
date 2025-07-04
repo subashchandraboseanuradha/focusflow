@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 7, "column": 0}, "map": {"version":3,"sources":["file:///home/subash/focusflow/src/app/auth/layout.tsx"],"sourcesContent":["import { Toaster } from '@/components/ui/toaster'\n\nexport default function AuthLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"min-h-screen bg-gray-50\">\n      {children}\n      <Toaster />\n    </div>\n  )\n}\n"],"names":[],"mappings":";;;;AAAA;;;AAEe,SAAS,WAAW,EAAE,QAAQ,EAAiC;IAC5E,qBACE,8OAAC;QAAI,WAAU;;YACZ;0BACD,8OAAC,mIAAA,CAAA,UAAO;;;;;;;;;;;AAGd","debugId":null}}]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "focusflow-extension-dev",
+  "version": "1.0.0",
+  "description": "Development environment for FocusFlow browser extension",
+  "scripts": {
+    "build:dev": "node scripts/extension-build.js development",
+    "build:staging": "node scripts/extension-build.js staging", 
+    "build:prod": "node scripts/extension-build.js production",
+    "package": "node scripts/extension-package-script.js",
+    "dev": "npm run build:dev && echo 'Extension built for development. Load from extension-dev/dist/ in Chrome.'",
+    "test": "echo 'Load extension in Chrome developer mode to test'"
+  },
+  "devDependencies": {
+    "archiver": "^5.3.1"
+  },
+  "keywords": ["browser-extension", "productivity", "focus", "chrome-extension"],
+  "author": "FocusFlow Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/focusflow"
+  }
+}

@@ -20,13 +20,13 @@ async function main() {
     console.log('Creating Supabase client...');
     const supabase = createClient(supabaseUrl, serviceRoleKey);
     
-    console.log('Testing connection...');
-    const { data, error } = await supabase.auth.getUser();
+    console.log('Testing connection by querying flows table...');
+    const { data, error } = await supabase.from('flows').select('id').limit(1);
     
     if (error) {
-      console.error('Auth error:', error);
+      console.error('Database query error:', error);
     } else {
-      console.log('Connection test successful');
+      console.log('Connection test successful, flows table accessible.');
     }
     
     console.log('Checking flows table...');

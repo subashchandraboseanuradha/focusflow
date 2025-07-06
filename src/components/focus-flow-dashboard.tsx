@@ -6,7 +6,7 @@ import { TaskDisplay } from './task-display';
 import { ProductivityReport } from './productivity-report';
 import { DistractionAlert } from './distraction-alert';
 import { FocusCheckinDialog } from './focus-checkin-dialog';
-import { generateFocusQuestionAction, updateFlowStatusAction } from '@/app/actions';
+import { createFlowAction, generateFocusQuestionAction, updateFlowStatusAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Icons } from './icons';
 
@@ -113,20 +113,30 @@ export function FocusFlowDashboard() {
   }, [status, taskDetails]);
 
 
-  const handleStartTask = (details: TaskDetails) => {
-    setTaskDetails(details);
-    setTimeRemaining(details.time * 60);
-    setStatus('running');
-    setActivityLog([]);
+  const handleStartTask = async (details: Omit<TaskDetails, 'flowId'>) => {
+    const result = await createFlowAction(details);
+    if (result.success && result.flowId) {
+      setTaskDetails({ ...details, flowId: result.flowId });
+      setTimeRemaining(details.time * 60);
+      setStatus('running');
+      setActivityLog([]);
 
-    const newPreset: TaskPreset = {
-      description: details.description,
-      approvedToolsDescription: details.approvedToolsDescription,
-      time: details.time,
-    };
-    
-    if (!presets.some(p => p.description === newPreset.description)) {
-      setPresets(prev => [newPreset, ...prev].slice(0, 5));
+      const newPreset: TaskPreset = {
+        description: details.description,
+        approvedToolsDescription: details.approvedToolsDescription,
+        time: details.time,
+      };
+
+      if (!presets.some(p => p.description === newPreset.description)) {
+        setPresets(prev => [newPreset, ...prev].slice(0, 5));
+      }
+    } else {
+      console.error('Failed to create flow:', result.error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not start the focus session. Please try again.',
+      });
     }
   };
 

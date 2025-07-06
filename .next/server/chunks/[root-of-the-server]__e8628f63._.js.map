@@ -1,8 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 6, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"","debugId":null}},
-    {"offset": {"line": 140, "column": 0}, "map": {"version":3,"sources":["file:///home/subash/focusflow/src/lib/supabase.ts"],"sourcesContent":["import { createClient } from '@supabase/supabase-js'\n\n// For client-side usage (e.g., in React components)\nexport const createClientComponentClient = () =>\n  createClient(\n    process.env.NEXT_PUBLIC_SUPABASE_URL!,\n    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!\n  )\n"],"names":[],"mappings":";;;AAAA;;AAGO,MAAM,8BAA8B,IACzC,CAAA,GAAA,yLAAA,CAAA,eAAY,AAAD","debugId":null}},
-    {"offset": {"line": 160, "column": 0}, "map": {"version":3,"sources":["file:///home/subash/focusflow/src/app/auth/callback/route.ts"],"sourcesContent":["import { createClientComponentClient } from '@/lib/supabase'\nimport { NextResponse } from 'next/server'\n\nexport async function GET(request: Request) {\n  const requestUrl = new URL(request.url)\n  const code = requestUrl.searchParams.get('code')\n\n  if (code) {\n    const supabase = createClientComponentClient()\n    await supabase.auth.exchangeCodeForSession(code)\n  }\n\n  // URL to redirect to after sign in process completes\n  return NextResponse.redirect(requestUrl.origin)\n}\n"],"names":[],"mappings":";;;AAAA;AACA;;;AAEO,eAAe,IAAI,OAAgB;IACxC,MAAM,aAAa,IAAI,IAAI,QAAQ,GAAG;IACtC,MAAM,OAAO,WAAW,YAAY,CAAC,GAAG,CAAC;IAEzC,IAAI,MAAM;QACR,MAAM,WAAW,CAAA,GAAA,wHAAA,CAAA,8BAA2B,AAAD;QAC3C,MAAM,SAAS,IAAI,CAAC,sBAAsB,CAAC;IAC7C;IAEA,qDAAqD;IACrD,OAAO,gIAAA,CAAA,eAAY,CAAC,QAAQ,CAAC,WAAW,MAAM;AAChD","debugId":null}}]
-}

@@ -12,10 +12,18 @@ export const createClient = async () => {
           return cookieStore.get(name)?.value
         },
         set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options })
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch {
+            // Ignore cookie setting errors in read-only contexts (Server Components)
+          }
         },
         remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: '', ...options })
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch {
+            // Ignore cookie setting errors in read-only contexts (Server Components)
+          }
         },
       },
     }

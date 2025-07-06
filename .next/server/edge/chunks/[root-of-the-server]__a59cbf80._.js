@@ -39,18 +39,26 @@ const createClient = async ()=>{
                 return cookieStore.get(name)?.value;
             },
             set (name, value, options) {
-                cookieStore.set({
-                    name,
-                    value,
-                    ...options
-                });
+                try {
+                    cookieStore.set({
+                        name,
+                        value,
+                        ...options
+                    });
+                } catch  {
+                // Ignore cookie setting errors in read-only contexts (Server Components)
+                }
             },
             remove (name, options) {
-                cookieStore.set({
-                    name,
-                    value: '',
-                    ...options
-                });
+                try {
+                    cookieStore.set({
+                        name,
+                        value: '',
+                        ...options
+                    });
+                } catch  {
+                // Ignore cookie setting errors in read-only contexts (Server Components)
+                }
             }
         }
     });
@@ -81,9 +89,12 @@ async function middleware(request) {
         '/auth/login',
         '/auth/signup',
         '/update-password',
-        '/auth/callback'
+        '/auth/callback',
+        '/api/extension/health' // Health check endpoint should be public
     ];
     const isPublicPath = publicPaths.some((path)=>request.nextUrl.pathname.startsWith(path));
+    // Extension API endpoints handle their own authentication
+    const isExtensionAPI = request.nextUrl.pathname.startsWith('/api/extension/');
     if (session) {
         // User is authenticated
         if (isPublicPath) {
@@ -92,7 +103,7 @@ async function middleware(request) {
         }
     } else {
         // User is not authenticated
-        if (!isPublicPath && !request.nextUrl.pathname.startsWith('/_next/static') && !request.nextUrl.pathname.startsWith('/favicon.ico')) {
+        if (!isPublicPath && !isExtensionAPI && !request.nextUrl.pathname.startsWith('/_next/static') && !request.nextUrl.pathname.startsWith('/favicon.ico')) {
             // If unauthenticated user tries to access a protected route, redirect to login
             return __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$esm$2f$server$2f$web$2f$spec$2d$extension$2f$response$2e$js__$5b$middleware$2d$edge$5d$__$28$ecmascript$29$__["NextResponse"].redirect(new URL('/auth/login', request.url));
         }

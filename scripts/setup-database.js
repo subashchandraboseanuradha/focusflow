@@ -28,27 +28,18 @@ async function createFlowsTable() {
 
   try {
     // Step 1: Create the flow_status enum
-    console.log('1️⃣ Creating flow_status enum...');
+    // Step 1: Create the flow_status enum
     const enumQuery = `
-      DO $$ 
+      DO $ 
       BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'flow_status') THEN
           CREATE TYPE flow_status AS ENUM ('active', 'completed', 'abandoned');
         END IF;
       END
-      $$;
+      $;
     `;
 
-    const { error: enumError } = await supabase.rpc('exec', { sql: enumQuery });
-    
-    if (enumError && !enumError.message.includes('already exists')) {
-      console.error('❌ Failed to create enum:', enumError);
-      throw enumError;
-    }
-    console.log('✅ Enum created successfully');
-
     // Step 2: Create the flows table
-    console.log('2️⃣ Creating flows table...');
     const tableQuery = `
       CREATE TABLE IF NOT EXISTS flows (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -61,16 +52,7 @@ async function createFlowsTable() {
       );
     `;
 
-    const { error: tableError } = await supabase.rpc('exec', { sql: tableQuery });
-    
-    if (tableError) {
-      console.error('❌ Failed to create flows table:', tableError);
-      throw tableError;
-    }
-    console.log('✅ Flows table created successfully');
-
     // Step 3: Create the activity table
-    console.log('3️⃣ Creating activity table...');
     const activityQuery = `
       CREATE TABLE IF NOT EXISTS activity (
         id BIGSERIAL PRIMARY KEY,
@@ -82,16 +64,7 @@ async function createFlowsTable() {
       );
     `;
 
-    const { error: activityError } = await supabase.rpc('exec', { sql: activityQuery });
-    
-    if (activityError) {
-      console.error('❌ Failed to create activity table:', activityError);
-      throw activityError;
-    }
-    console.log('✅ Activity table created successfully');
-
     // Step 4: Enable RLS and create policies
-    console.log('4️⃣ Setting up Row Level Security...');
     const rlsQuery = `
       -- Enable RLS on flows table
       ALTER TABLE flows ENABLE ROW LEVEL SECURITY;
@@ -111,7 +84,6 @@ async function createFlowsTable() {
       
       -- Drop existing policies if they exist
       DROP POLICY IF EXISTS "Users can see activity for their own flows" ON activity;
-      DROP POLICY IF EXISTS "Users can insert activity for their own flows" ON activity;
       
       -- Create new policies for activity
       CREATE POLICY "Users can see activity for their own flows" ON activity FOR SELECT
@@ -124,36 +96,44 @@ async function createFlowsTable() {
       );
     `;
 
-    const { error: rlsError } = await supabase.rpc('exec', { sql: rlsQuery });
-    
-    if (rlsError) {
-      console.error('❌ Failed to setup RLS:', rlsError);
-      throw rlsError;
-    }
-    console.log('✅ Row Level Security configured successfully');
+    console.log('1️⃣ Creating flow_status enum...');
+    console.log('Please run the following SQL in your Supabase SQL Editor:');
+    console.log('```sql');
+    console.log(enumQuery);
+    console.log('```');
+    console.log('✅ Enum creation SQL provided.');
 
-    // Step 5: Test the setup
-    console.log('5️⃣ Testing database setup...');
-    const { data: testData, error: testError } = await supabase
-      .from('flows')
-      .select('*')
-      .limit(1);
+    // Step 2: Create the flows table
+    console.log('2️⃣ Creating flows table...');
+    console.log('Please run the following SQL in your Supabase SQL Editor:');
+    console.log('```sql');
+    console.log(tableQuery);
+    console.log('```');
+    console.log('✅ Flows table creation SQL provided.');
 
-    if (testError) {
-      console.error('❌ Test query failed:', testError);
-      throw testError;
-    }
-    console.log('✅ Database test successful');
+    // Step 3: Create the activity table
+    console.log('3️⃣ Creating activity table...');
+    console.log('Please run the following SQL in your Supabase SQL Editor:');
+    console.log('```sql');
+    console.log(activityQuery);
+    console.log('```');
+    console.log('✅ Activity table creation SQL provided.');
 
-    console.log('\n🎉 Database setup completed successfully!');
-    console.log('You can now run your FocusFlow application.');
+    // Step 4: Enable RLS and create policies
+    console.log('4️⃣ Setting up Row Level Security...');
+    console.log('Please run the following SQL in your Supabase SQL Editor:');
+    console.log('```sql');
+    console.log(rlsQuery);
+    console.log('```');
+    console.log('✅ Row Level Security configuration SQL provided.');
+
+    console.log('🎉 Database setup instructions provided successfully!');
+    console.log('Please execute the SQL commands in your Supabase project\'s SQL Editor.');
+    console.log('After running the SQL, your database schema should be correctly set up.');
+    console.log('You can then run your FocusFlow application.');
 
   } catch (error) {
-    console.error('\n💥 Setup failed:', error);
-    console.error('\n📋 Troubleshooting:');
-    console.error('1. Ensure you have the correct SUPABASE_SERVICE_ROLE_KEY');
-    console.error('2. Check that your Supabase project allows the exec function');
-    console.error('3. Verify your database has the necessary permissions');
+    console.error('\n💥 Setup script failed to generate SQL:', error);
     process.exit(1);
   }
 }

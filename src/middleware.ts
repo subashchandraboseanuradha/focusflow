@@ -10,9 +10,18 @@ export async function middleware(request: NextRequest) {
 
   const { data: { session } } = await supabase.auth.getSession()
 
-  const publicPaths = ['/auth/login', '/auth/signup', '/update-password', '/auth/callback']
+  const publicPaths = [
+    '/auth/login', 
+    '/auth/signup', 
+    '/update-password', 
+    '/auth/callback',
+    '/api/extension/health'  // Health check endpoint should be public
+  ]
   const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path))
-
+  
+  // Extension API endpoints handle their own authentication
+  const isExtensionAPI = request.nextUrl.pathname.startsWith('/api/extension/')
+  
   if (session) {
     // User is authenticated
     if (isPublicPath) {
@@ -21,7 +30,7 @@ export async function middleware(request: NextRequest) {
     }
   } else {
     // User is not authenticated
-    if (!isPublicPath && !request.nextUrl.pathname.startsWith('/_next/static') && !request.nextUrl.pathname.startsWith('/favicon.ico')) {
+    if (!isPublicPath && !isExtensionAPI && !request.nextUrl.pathname.startsWith('/_next/static') && !request.nextUrl.pathname.startsWith('/favicon.ico')) {
       // If unauthenticated user tries to access a protected route, redirect to login
       return NextResponse.redirect(new URL('/auth/login', request.url))
     }

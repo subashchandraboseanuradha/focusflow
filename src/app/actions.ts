@@ -6,7 +6,44 @@ import { extractWebsites, type ExtractWebsitesInput } from '@/ai/flows/extract-w
 import { generateFocusQuestion, type GenerateFocusQuestionInput, type GenerateFocusQuestionOutput } from '@/ai/flows/generate-focus-question';
 import { createServerComponentClient } from '@/lib/supabase-server';
 
+export async function createFlowAction(taskDetails: { description: string; approvedToolsDescription: string; time: number }): Promise<{ success: boolean; flowId?: string; error?: string }> {
+  try {
+    const supabase = await createServerComponentClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: 'Authentication required' };
+    }
+
+    const { data, error } = await supabase
+      .from('flows')
+      .insert([
+        {
+          user_id: user.id,
+          task_description: taskDetails.description,
+          allowed_urls: taskDetails.approvedToolsDescription.split('\n'),
+          status: 'active',
+          start_time: new Date(),
+          end_time: new Date(Date.now() + taskDetails.time * 60 * 1000),
+        },
+      ])
+      .select('id')
+      .single();
+
+    if (error) {
+      console.error('Error creating flow:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, flowId: data.id };
+  } catch (error) {
+    console.error('Error in createFlowAction:', error);
+    return { success: false, error: 'Unknown error occurred' };
+  }
+}
+
 export async function checkDistractionAction(input: DetectDistractionInput): Promise<DetectDistractionOutput> {
+
   try {
     const result = await detectDistraction(input);
     return result;
